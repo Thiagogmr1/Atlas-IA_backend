@@ -1,10 +1,15 @@
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
 
-from app.core.security import hash_password
+from app.core.security import create_access_token, hash_password, verify_password
 from app.models import User
 from app.repositories.user_repository import UserRepository
+from app.schemas.auth import Token
 from app.schemas.user import UserCreate
+
+# Usado quando o e-mail não existe, para o tempo de resposta
+# não revelar se o e-mail está cadastrado.
+_DUMMY_HASH = hash_password("senha-falsa-para-tempo-constante")
 
 
 class AuthService:
@@ -26,6 +31,20 @@ class AuthService:
         except IntegrityError:
             self.users.db.rollback()
             raise self._email_conflict()
+
+    def login(self, email: str, password: str) -> Token:
+        user = self.users.get_by_email(email.lower())
+        hashed = user.password_hash if user else _DUMMY_HASH
+        password_ok = verify_password(password, hashed)
+
+        if not user or not password_ok:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="E-mail ou senha incorretos",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return Token(access_token=create_access_token(user.id))
 
     @staticmethod
     def _email_conflict() -> HTTPException:
