@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.routers import (
     ad_accounts,
+    agent_actions,
     auth,
     campaigns,
     creatives,
@@ -19,6 +20,7 @@ app.include_router(ad_accounts.router)
 app.include_router(campaigns.router)
 app.include_router(optimization_rules.router)
 app.include_router(creatives.router)
+app.include_router(agent_actions.router)
 
 
 @app.get("/health")
