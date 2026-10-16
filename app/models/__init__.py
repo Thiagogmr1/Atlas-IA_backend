@@ -2,6 +2,7 @@ from app.models.ad import Ad
 from app.models.ad_account import AdAccount
 from app.models.agent_action_log import AgentActionLog
 from app.models.campaign import Campaign
+from app.models.conversation import Conversation, Message
 from app.models.creative import Creative
 from app.models.metric import Metric
 from app.models.optimization_rule import OptimizationRule
@@ -12,7 +13,9 @@ __all__ = [
     "AdAccount",
     "AgentActionLog",
     "Campaign",
+    "Conversation",
     "Creative",
+    "Message",
     "Metric",
     "OptimizationRule",
     "User",

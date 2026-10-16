@@ -12,9 +12,15 @@ class Settings(BaseSettings):
     jwt_secret: str
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
+
     account_deletion_grace_days: int = 30
 
-    model_config = SettingsConfigDict(env_file=".env")
+    gemini_api_key: str
+    gemini_model: str
+    gemini_thinking_level: str | None = None  # opcional: low, medium ou high
+    chat_history_limit: int = 40
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
     def database_url(self) -> URL:
