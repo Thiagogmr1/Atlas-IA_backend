@@ -88,3 +88,8 @@ class AgentActionStatus(str, enum.Enum):
     EXECUTED = "executed"
     PENDING_APPROVAL = "pending_approval"
     RECOMMENDED = "recommended"
+    
+
+class MessageRole(str, enum.Enum):
+    USER = "user"
+    ASSISTANT = "assistant"

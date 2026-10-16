@@ -8,6 +8,7 @@ from app.routers import (
     agent_actions,
     auth,
     campaigns,
+    conversations,
     creatives,
     optimization_rules,
     users,
@@ -21,6 +22,7 @@ app.include_router(campaigns.router)
 app.include_router(optimization_rules.router)
 app.include_router(creatives.router)
 app.include_router(agent_actions.router)
+app.include_router(conversations.router)
 
 
 @app.get("/health")
