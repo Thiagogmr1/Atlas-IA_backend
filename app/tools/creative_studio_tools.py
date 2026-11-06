@@ -8,7 +8,6 @@ from app.services.creative_studio_service import CreativeStudioService
 from app.services.media_service import MediaService
 from app.tools.base import AgentTool
 
-
 # ==============================================================================
 # 8. generate_advertising_image (Creative Studio)
 # ==============================================================================

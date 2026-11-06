@@ -7,7 +7,6 @@ from app.agent.context import AgentContext
 from app.integrations.instagram import InstagramIntegration, InstagramPostPayload
 from app.tools.base import AgentTool
 
-
 # ==============================================================================
 # 1. analyze_marketing_goal
 # ==============================================================================
