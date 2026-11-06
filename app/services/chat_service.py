@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 
+from app.agent.context import AgentContext
 from app.core.config import settings
 from app.models import Conversation, Message, User
 from app.models.enums import MessageRole
@@ -76,10 +77,35 @@ class ChatService:
             )
             for m in history
         ]
-        turns.append(ChatTurn(role="user", content=data.content))
+
+        context = AgentContext(
+            user_id=user.id,
+            user_name=user.name,
+            conversation_id=conversation.id,
+            custom_instructions=user.custom_instructions,
+            db_session=self.conversations.db,
+        )
+
+        # Monta prompt incluindo referências a mídias enviadas, se existirem
+        effective_message = data.content
+        user_provider_steps = None
+        if data.media_urls:
+            user_provider_steps = [{"type": "user_attachment", "media_urls": data.media_urls}]
+            media_info = "\n\n[Mídias anexadas pelo usuário no chat:]\n" + "\n".join(
+                f"- {url}" for url in data.media_urls
+            )
+            effective_message = f"{data.content}{media_info}"
 
         try:
-            reply = self.ai.generate(turns, system_instruction=user.custom_instructions)
+            if hasattr(self.ai, "generate_with_context"):
+                reply = self.ai.generate_with_context(
+                    history=turns,
+                    new_message=effective_message,
+                    context=context,
+                )
+            else:
+                turns_with_current = list(turns) + [ChatTurn(role="user", content=effective_message)]
+                reply = self.ai.generate(turns_with_current, system_instruction=user.custom_instructions)
         except AIProviderError:
             # Nada é gravado se a IA falhar: o usuário só reenvia a mensagem.
             raise HTTPException(
@@ -97,4 +123,5 @@ class ChatService:
             assistant_content=reply.text,
             provider_steps=reply.provider_steps,
             new_title=new_title,
+            user_provider_steps=user_provider_steps,
         )
