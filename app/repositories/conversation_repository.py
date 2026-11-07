@@ -60,12 +60,14 @@ class ConversationRepository:
         assistant_content: str,
         provider_steps: list[dict] | None,
         new_title: str | None = None,
+        user_provider_steps: list[dict] | None = None,
     ) -> tuple[Message, Message]:
         """Grava a pergunta e a resposta juntas, numa única transação."""
         user_message = Message(
             conversation_id=conversation.id,
             role=MessageRole.USER,
             content=user_content,
+            provider_steps=user_provider_steps,
         )
         assistant_message = Message(
             conversation_id=conversation.id,

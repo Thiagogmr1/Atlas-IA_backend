@@ -1,54 +1,56 @@
 import logging
-from functools import lru_cache
+from typing import TYPE_CHECKING
 
-from google import genai
+from app.agent.context import AgentContext
+from app.services.ai.base import AIProvider, AIProviderError, AIReply, ChatTurn
 
-from app.core.config import settings
-from app.services.ai.base import AIProviderError, AIReply, ChatTurn
+if TYPE_CHECKING:
+    from app.agent.orchestrator import AgentOrchestrator
 
 logger = logging.getLogger(__name__)
 
 
-@lru_cache
-def _client() -> genai.Client:
-    return genai.Client(api_key=settings.gemini_api_key)
+class GeminiProvider(AIProvider):
+    """Provedor Gemini integrado ao AgentOrchestrator com Function Calling e segurança."""
 
+    def __init__(self, orchestrator: "AgentOrchestrator | None" = None):
+        if orchestrator is None:
+            from app.agent.orchestrator import AgentOrchestrator
+            orchestrator = AgentOrchestrator()
+        self.orchestrator = orchestrator
 
-class GeminiProvider:
     def generate(
         self, history: list[ChatTurn], system_instruction: str | None = None
     ) -> AIReply:
-        steps: list[dict] = []
-        for turn in history:
-            if turn.role == "user":
-                steps.append(
-                    {"type": "user_input", "content": [{"type": "text", "text": turn.content}]}
-                )
-            elif turn.provider_steps:
-                # Passos do modelo reenviados exatamente como vieram.
-                steps.extend(turn.provider_steps)
-            else:
-                steps.append(
-                    {"type": "model_output", "content": [{"type": "text", "text": turn.content}]}
-                )
+        """Compatibilidade com o protocolo AIProvider."""
+        if not history:
+            return AIReply(text="")
 
-        params: dict = {"model": settings.gemini_model, "input": steps, "store": False}
-        if system_instruction:
-            params["system_instruction"] = system_instruction
-        if settings.gemini_thinking_level:
-            params["generation_config"] = {"thinking_level": settings.gemini_thinking_level}
+        turns = history[:-1]
+        last_turn = history[-1]
 
-        try:
-            interaction = _client().interactions.create(**params)
-        except Exception as exc:
-            logger.exception("Falha na chamada ao Gemini")
-            raise AIProviderError(str(exc)) from exc
+        context = AgentContext(
+            user_id=0,
+            user_name="Usuario",
+            conversation_id=0,
+            custom_instructions=system_instruction,
+        )
 
-        text = interaction.output_text
-        if not text:
-            raise AIProviderError("O Gemini devolveu uma resposta vazia")
+        return self.orchestrator.run(
+            history=turns,
+            new_message=last_turn.content,
+            context=context,
+        )
 
-        return AIReply(
-            text=text,
-            provider_steps=[step.model_dump(mode="json") for step in interaction.steps],
+    def generate_with_context(
+        self,
+        history: list[ChatTurn],
+        new_message: str,
+        context: AgentContext,
+    ) -> AIReply:
+        """Executa a interação completa fornecendo o contexto autenticado do usuário."""
+        return self.orchestrator.run(
+            history=history,
+            new_message=new_message,
+            context=context,
         )

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -12,9 +12,11 @@ from app.schemas.conversation import (
     ConversationRead,
     ConversationUpdate,
     MessageCreate,
+    UploadResponse,
 )
 from app.services.ai import get_ai_provider
 from app.services.chat_service import ChatService
+from app.services.media_service import MediaService
 
 router = APIRouter(prefix="/conversations", tags=["Conversations"])
 
@@ -86,3 +88,35 @@ def send_message(
         conversation_id, current_user, data
     )
     return {"user_message": user_message, "assistant_message": assistant_message}
+
+
+@router.post(
+    "/{conversation_id}/upload",
+    response_model=UploadResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_media(
+    conversation_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    service: ChatService = Depends(get_service),
+):
+    # Garante que a conversa pertence ao usuário autenticado
+    service.get(conversation_id, current_user.id)
+
+    content = await file.read()
+    media_service = MediaService()
+    try:
+        saved = media_service.save_upload(
+            file_bytes=content,
+            original_filename=file.filename or "upload.bin",
+            content_type=file.content_type or "application/octet-stream",
+            user_id=current_user.id,
+        )
+    except ValueError as val_err:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(val_err),
+        )
+
+    return saved

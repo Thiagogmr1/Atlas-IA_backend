@@ -4,6 +4,7 @@ from app.models.agent_action_log import AgentActionLog
 from app.models.campaign import Campaign
 from app.models.conversation import Conversation, Message
 from app.models.creative import Creative
+from app.models.instagram import InstagramIntegration, InstagramPublication
 from app.models.metric import Metric
 from app.models.optimization_rule import OptimizationRule
 from app.models.user import User
@@ -15,6 +16,8 @@ __all__ = [
     "Campaign",
     "Conversation",
     "Creative",
+    "InstagramIntegration",
+    "InstagramPublication",
     "Message",
     "Metric",
     "OptimizationRule",
