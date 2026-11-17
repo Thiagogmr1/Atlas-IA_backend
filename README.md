@@ -1,0 +1,137 @@
+# Atlas IA Backend
+
+Backend em Python/FastAPI para o ecossistema Atlas IA, responsável por expor endpoints da API, conectar com PostgreSQL e servir como base para integrações com IA, mídias e redes sociais.
+
+## Visão geral
+
+Este projeto foi estruturado para funcionar como API backend central, com:
+
+- FastAPI como framework web
+- SQLAlchemy como ORM para acesso ao PostgreSQL
+- Pydantic Settings para leitura de variáveis de ambiente
+- Endpoints de saúde e expansão para integrações futuras
+
+## Stack principal
+
+- Python 3.11+
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Pydantic
+- Uvicorn
+
+## Estrutura do projeto
+
+```text
+Atlas-IA_backend/
+├── app/
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   └── database.py
+│   ├── main.py
+│   ├── models/
+│   ├── repositories/
+│   ├── routers/
+│   ├── schemas/
+│   ├── services/
+│   └── __init__.py
+├── .gitignore
+├── README.md
+├── requirements.txt
+└── .env.example
+```
+
+## Requisitos
+
+Antes de iniciar, certifique-se de ter instalado:
+
+- Python 3.11 ou superior
+- PostgreSQL
+- pip
+- virtualenv (opcional, mas recomendado)
+
+## Configuração do ambiente
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/Thiagogmr1/Atlas-IA_backend.git
+cd Atlas-IA_backend
+```
+
+2. Crie um ambiente virtual:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+No Windows:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+3. Instale as dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure as variáveis de ambiente.
+
+Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=sua_senha
+DB_NAME=atlasia
+```
+
+O projeto lê estas configurações em `app/core/config.py` usando `pydantic-settings`.
+
+## Executando a aplicação
+
+Na raiz do projeto, execute:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+A API ficará disponível em:
+
+- http://localhost:8000
+
+## Endpoints principais
+
+### Health check
+
+```http
+GET /health
+```
+
+Resposta esperada:
+
+```json
+{
+  "status": "ok",
+  "database": "connected"
+}
+```
+
+## Banco de dados
+
+A conexão com o PostgreSQL é configurada em `app/core/database.py` e usa a URL montada a partir das variáveis do `.env`.
+
+## Observações
+
+- O README estava vazio, então foi preenchido com a estrutura básica do projeto para facilitar onboarding e execução local.
+- O projeto ainda pode ser expandido com autenticação, rotas específicas, serviços de IA e integrações externas.
+
+## Licença
+
+Este projeto não possui licença definida no repositório até o momento.
