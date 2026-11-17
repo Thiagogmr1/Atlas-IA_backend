@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧭 AtlasAI — Backend
+# AtlasAI — Backend
 
 ### Agente Inteligente e Autônomo de Marketing Digital e Tráfego Pago
 
