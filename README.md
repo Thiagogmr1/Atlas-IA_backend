@@ -12,7 +12,6 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?logo=sqlalchemy&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google%20Gemini-2.5%20Flash-8E75B2?logo=googlegemini&logoColor=white)
 ![Meta Graph API](https://img.shields.io/badge/Meta%20Graph%20API-v21.0-0467DF?logo=meta&logoColor=white)
-![Tests](https://img.shields.io/badge/testes-51%20casos-success)
 
 *Projeto Integrador — Backend*
 
